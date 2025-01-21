@@ -1,0 +1,1411 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blockly Demo</title>
+  <style>
+    .workspace-disabled {
+      pointer-events: none;
+    }
+
+
+    #blocklyDiv {
+      height: 480px;
+      width: 100%;
+
+    }
+
+    body {
+      color: white;
+      background-color: rgb(77, 71, 71);
+      /* Šedé pozadí */
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    #tabulka {
+      width: 30%;
+      max-width: fit-content;
+      min-width: fit-content;
+      max-height: 500px;
+      overflow-y: auto;
+    }
+
+    table {
+      border-collapse: separate;
+      border-spacing: 0;
+      margin-top: 1rem;
+      width: 100%;
+      margin-top: 0;
+
+    }
+
+    td {
+      width: 50px;
+      height: 50px;
+      border: 1px solid grey;
+      text-align: center;
+      vertical-align: middle;
+      padding: 0;
+      background-color: #BFECFF;
+      margin: 0;
+      position: relative;
+
+
+    }
+
+    td img {
+
+      height: 50px;
+      width: 50px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    #pocetvseho {
+      color: white;
+      font-size: 20px;
+      margin: 0;
+      padding: 0;
+
+    }
+
+    #pocetst {
+      all: unset;
+    }
+
+    #pocetpb {
+      all: unset;
+    }
+  </style>
+  <script src="blockly11.2.0.js"></script>
+
+  <script> // start block 
+    // start block
+    Blockly.Blocks['start_program'] = {
+      init: function () {
+        this.appendDummyInput()
+          .appendField("Start");
+        this.setNextStatement(true, null);
+        this.setColour(230);
+        this.setTooltip("Start of the program");
+        this.setHelpUrl("");
+      }
+    };
+    // pohyb
+    Blockly.Blocks['let'] = {
+      init: function () {
+        this.appendDummyInput()
+          .appendField("leť")
+          .appendField(new Blockly.FieldDropdown([
+            ["vpřed", "FORWARD"],
+            ["vlevo", "LEFT"],
+            ["vpravo", "RIGHT"]
+          ]), "DIRECTION");
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+        this.setColour(160);
+        this.setTooltip("Vyber směr letu: vpřed, vlevo nebo vpravo");
+        this.setHelpUrl("");
+      }
+    };
+    // Výstřel
+    Blockly.Blocks['vystrel'] = {
+      init: function () {
+        this.appendDummyInput()
+          .appendField("Výstřel");
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+        this.setColour(210);
+        this.setTooltip("Provede výstřel");
+        this.setHelpUrl("");
+      }
+    };
+    Blockly.Blocks['opakuj'] = {
+      init: function () {
+        // Vytvoření textového pole a číselného vstupu
+        this.appendDummyInput()
+          .appendField("Opakuj")
+          .appendField(new Blockly.FieldNumber(1, 1), "POCET") // Pole pro zadání čísla
+          .appendField("krát");
+
+        // Prostor pro vnořené bloky
+        this.appendStatementInput("AKCE")
+          .setCheck(null);
+
+        // Nastavení bloku
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+        this.setColour(120); // Zelená barva
+        this.setTooltip("Opakuje akci zadaný početkrát.");
+        this.setHelpUrl("");
+      }
+    };
+    Blockly.Blocks['dokud'] = {
+      init: function () {
+        // Vytvoření bloku s textem a slotem pro podmínku
+        this.appendValueInput("PODMINKA")
+          .setCheck("Boolean")
+          .appendField("dokud");
+
+        this.appendDummyInput()
+          .appendField(":");
+
+        // Prostor pro vnořené bloky
+        this.appendStatementInput("AKCE")
+          .setCheck(null);
+
+        // Nastavení bloku
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+        this.setColour(180); // Modrá barva
+        this.setTooltip("Opakuje akci, dokud je podmínka splněna.");
+        this.setHelpUrl("");
+      }
+    };
+    Blockly.Blocks['porovnani'] = {
+      init: function () {
+        // Blok pro porovnání hodnot
+        this.appendDummyInput()
+          .appendField("pozice")
+          .appendField(new Blockly.FieldDropdown([["=", "EQ"], ["!=", "NEQ"], [">", "GT"], ["<", "LT"], [">=", "GTE"], ["<=", "LTE"]]), "OPERACE")
+          .appendField(new Blockly.FieldDropdown([["0", "0"], ["1", "1"], ["2", "2"], ["3", "3"], ["4", "4"]]), "HODNOTA");
+
+        this.setOutput(true, "Boolean");
+        this.setColour(210); // Hnědá barva
+        this.setTooltip("Porovnání proměnné s hodnotou.");
+        this.setHelpUrl("");
+      }
+    };
+    Blockly.Blocks['porovnani_text'] = {
+      init: function () {
+        // Blok pro porovnání textových hodnot
+        this.appendDummyInput()
+          .appendField("barva")
+          .appendField(new Blockly.FieldDropdown([["=", "EQ"], ["!=", "NEQ"]]), "OPERACE")
+          .appendField(new Blockly.FieldDropdown([["růžová", "Ruzova"], ["žlutá", "Zluta"], ["zelená", "Zelena"], ["modrá", "Modra"]]), "HODNOTA");
+
+        this.setOutput(true, "Boolean");
+        this.setColour(210); // Hnědá barva
+        this.setTooltip("Porovnání textové proměnné s hodnotou.");
+        this.setHelpUrl("");
+      }
+    };
+    Blockly.Blocks['pokud'] = {
+      init: function () {
+        // Vytvoření bloku pro podmíněné vykonání (if)
+        this.appendValueInput("PODMINKA")
+          .setCheck("Boolean")
+          .appendField("pokud");
+
+        this.appendDummyInput()
+          .appendField(":");
+
+        this.appendStatementInput("AKCE")
+          .setCheck(null);
+
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+        this.setColour(0); // Červená barva
+        this.setTooltip("Vykoná akci, pokud je podmínka splněna.");
+        this.setHelpUrl("");
+      }
+    };
+
+    Blockly.Blocks['pokud_jinak'] = {
+      init: function () {
+        // Vytvoření bloku pro podmíněné vykonání s else (if-else)
+        this.appendValueInput("PODMINKA")
+          .setCheck("Boolean")
+          .appendField("pokud");
+
+        this.appendDummyInput()
+          .appendField(":");
+
+        this.appendStatementInput("AKCE")
+          .setCheck(null);
+
+        this.appendDummyInput()
+          .appendField("jinak:");
+
+        this.appendStatementInput("AKCE_JINAK")
+          .setCheck(null);
+
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+        this.setColour(0); // Červená barva
+        this.setTooltip("Vykoná akci, pokud je podmínka splněna, jinak provede jinou akci.");
+        this.setHelpUrl("");
+      }
+    };
+
+
+
+
+
+
+
+
+  </script>
+
+</head>
+
+<body>
+  <h1>raketomise - návrh
+    
+  </h1>
+  <div style="display: flex;">
+
+    <div id="tabulka">
+      <p id="pocetvseho">
+      <p id="pocetpb">🧱<a id="pocetpouzitychbloku1">0</a>/<a id="pocetpouzitychbloku2">0</a></p>
+      <p id="pocetst">🔫 <a id="pocetstrel1">0</a>/<a id="pocetstrel2">0</a></p>
+      </p>
+
+
+      <table id="herniTabulka"></table>
+    </div>
+    <div id="blocklyDiv" style="width: 70%;"></div>
+  </div>
+  <button id="spustitProgramButton" onclick="spustitProgram()">Spustit program</button>
+  <input type="range" id="myRange" min="100" max="2000" value="1050" step="50">
+  <!--<p>Program:</p>-->
+  <a style="display: none;" id="vypisprogramu">výpis programu</a>
+  <script> // Toolbox
+    // Toolbox 
+    const toolbox = { //.
+      "kind": "flyoutToolbox",
+      "contents": []
+    };
+    </script>
+
+
+
+    <script> // Vykreslení mapy
+
+      //mapa
+      let cas = "";
+      let AktualniBlokRunning = "";
+      let konecHry = "";
+      let radky = "";
+      let sloupce = "";
+      let pocetMaxBloku = "";
+      let pocetMaxNaboju = "";
+      //atributy na mapě
+      //raketa
+      let raketkaRow = "";
+      let raketkaCol = "";
+      let raketkaRowPamet = raketkaRow;
+      let raketkaColPamet = raketkaCol;
+  
+      //diamant
+      let DiamondRow = "";
+      let DiamondCol = "";
+  
+  
+      let AsteroidRow = "";
+      let AsteroidCol = "";
+  
+  
+      let meteoritRow = "";
+      let meteoritCol = "";
+  
+      //teleporty
+      let TP_BlueRow = "";
+      let TP_BlueCol = "";
+      let TP_BlueRow2 = "";
+      let TP_BlueCol2 = "";
+      let TP_GreenRow = "";
+      let TP_GreenCol = "";
+      let TP_GreenRow2 = "";
+      let TP_GreenCol2 = "";
+      let TP_OrangeRow = "";
+      let TP_OrangeCol = "";
+      let TP_OrangeRow2 = "";
+      let TP_OrangeCol2 = "";
+  
+      let barvaRow = "";
+      let barvaCol = "";
+      let barvaRow2 = "";
+      let barvaCol2 = "";
+  
+  
+  
+  
+      const raketkaIcon = document.createElement('img');
+      raketkaIcon.src = 'obrazky/spaceship.png';
+      raketkaIcon.alt = 'spaceship';
+      raketkaIcon.style.zIndex = 1000;
+      const DiamondIcon = document.createElement('img');
+      DiamondIcon.src = 'obrazky/diamond.png';
+      DiamondIcon.alt = 'diamond';
+      DiamondIcon.style.zIndex = 1;
+      const kamenIcon = document.createElement('img');
+      kamenIcon.src = 'obrazky/asteroid.png';
+      kamenIcon.alt = 'asteroid';
+      kamenIcon.style.zIndex = 1;
+      const meteoritIcon = document.createElement('img');
+      meteoritIcon.src = 'obrazky/meteorite.png';
+      meteoritIcon.alt = 'raketa';
+      meteoritIcon.style.zIndex = 1;
+      const OteleportIcon = document.createElement('img');
+      OteleportIcon.src = 'obrazky/TP_Orange_2.png';
+      OteleportIcon.alt = 'Oteleport1';
+      OteleportIcon.style.zIndex = 1;
+      const Oteleport2Icon = document.createElement('img');
+      Oteleport2Icon.src = 'obrazky/TP_Orange.png';
+      Oteleport2Icon.alt = 'Oteleport2';
+      Oteleport2Icon.style.zIndex = 1;
+      const BteleportIcon = document.createElement('img');
+      BteleportIcon.src = 'obrazky/TP_Blue.png';
+      BteleportIcon.alt = 'Bteleport1';
+      BteleportIcon.style.zIndex = 1;
+      const Bteleport2Icon = document.createElement('img');
+      Bteleport2Icon.src = 'obrazky/TP_Blue_2.png';
+      Bteleport2Icon.alt = 'Bteleport2';
+      Bteleport2Icon.style.zIndex = 1;
+      const GteleportIcon = document.createElement('img');
+      GteleportIcon.src = 'obrazky/TP_Green.png';
+      GteleportIcon.alt = 'Gteleport1';
+      GteleportIcon.style.zIndex = 1;
+      const Gteleport2Icon = document.createElement('img');
+      Gteleport2Icon.src = 'obrazky/TP_Green_2.png';
+      Gteleport2Icon.alt = 'Gteleport2';
+      Gteleport2Icon.style.zIndex = 1;
+  
+      let cilovaBunka = "";
+      const herniTabulka = document.getElementById('herniTabulka');
+      let prvniRadek = "";
+  
+      AktualniBlokRunning = true;
+      konecHry = true;
+      cas = document.getElementById("myRange").value;
+  
+      let matice = [
+        [
+          ["M", "TPB2", "M", "A", "M"],
+          ["M", "D", "M", "D", "M"],
+          ["M", "A", "M", "A", "M"],
+          ["M", "A", "M", "A", "M"],
+          ["", "", "", "", ""],
+          ["", "", "", "", ""],
+          ["", "", "", "", ""],
+          ["", "", "", "", ""],
+          ["", "", "", "", ""],
+          ["", "", "", "", ""],
+          ["", "R", "", "TPB", ""]
+  
+  
+        ],
+        [
+          ["", "", "", "", ""],
+          ["", "", "", "", ""],
+          ["", "", "", "", ""],
+          ["", "", "", "", ""],
+          ["", "", "", "", ""],
+          ["", "", "", "", ""],
+          ["", "", "", "", ""],
+          ["", "", "", "", ""],
+          ["", "", "", "", ""],
+          ["", "", "", "", ""],
+          ["", "", "", "", ""]
+        ],
+  
+        [
+          ["radky=11", "sloupce=5", "pocetMaxBloku=5", "pocetMaxNaboju=5"]
+        ],
+        [
+          ["let", "vystrel", "opakuj", "dokud", "porovnani", "porovnani_text", "pokud", "pokud_jinak"] //.
+        ]
+      ];
+  
+      /*
+          let matice = [
+            [
+              ["", "", "", "", ""],
+              ["", "", "", "", ""],
+              ["", "", "", "", ""],
+              ["", "", "", "", ""],
+              ["", "", "", "", ""],
+              ["", "", "", "", ""],
+              ["", "", "", "", ""],
+              ["", "", "", "", ""],
+              ["", "", "", "", ""],
+              ["", "", "", "", ""],
+      
+      
+            ],
+            [
+              ["", "", "", "", ""],
+              ["", "", "", "", ""],
+              ["", "", "", "", ""],
+              ["", "", "", "", ""],
+              ["", "", "", "", ""],
+              ["", "", "", "", ""],
+              ["", "", "", "", ""],
+              ["", "", "", "", ""],
+              ["", "", "", "", ""],
+              ["", "", "", "", ""]
+            ],
+      
+            [
+              ["radky=10", "sloupce=5", "pocetMaxBloku=5", "pocetMaxNaboju=1"],
+            ]
+          ];
+      
+      */
+  
+  
+      function setupMap() {
+        // Načtení parametrů z matice
+        matice[2][0].forEach(param => {
+          let [key, value] = param.split("=");
+          if (key === "radky") radky = parseInt(value);
+          if (key === "sloupce") sloupce = parseInt(value);
+          if (key === "pocetMaxBloku") pocetMaxBloku = parseInt(value);
+          if (key === "pocetMaxNaboju") pocetMaxNaboju = parseInt(value);
+        });
+  
+        // Skrytí počítadla, pokud je max bloků 0
+        let pocetpb = document.getElementById("pocetpb");
+        if (pocetMaxBloku == 0 && pocetpb) {
+          pocetpb.style.display = 'none';
+        }
+        let pocetst = document.getElementById("pocetst");
+        if (pocetMaxNaboju == 0 && pocetst) {
+          pocetst.style.display = 'none';
+        }
+        document.getElementById("pocetstrel1").textContent = pocetMaxNaboju;
+  
+  
+  
+  
+        // Resetování herní tabulky
+        herniTabulka.innerHTML = '';
+  
+        // Vytvoření tabulky
+        for (let r = 0; r < radky; r++) {
+          const row = document.createElement('tr');
+          for (let c = 0; c < sloupce; c++) {
+            const cell = document.createElement('td');
+            row.appendChild(cell);
+          }
+          herniTabulka.appendChild(row);
+        }
+  
+        // Vykreslení objektů na základě matice
+        matice[0].forEach((radek, r) => {
+          radek.forEach((prvek, c) => {
+            if (prvek) {
+              let cilovaBunka = herniTabulka.rows[r].cells[c];
+              cilovaBunka.textContent = '';  // Vymažeme text
+  
+              // Výběr správné ikony pro daný prvek
+              let ikona = null;
+              switch (prvek) {
+                case 'D':
+                  ikona = DiamondIcon.cloneNode(true);
+                  break;
+                case 'A':
+                  ikona = kamenIcon.cloneNode(true);
+                  break;
+                case 'M':
+                  ikona = meteoritIcon.cloneNode(true);
+                  break;
+                case 'TPB':
+                  ikona = OteleportIcon.cloneNode(true);
+                  break;
+                case 'TPB2':
+                  ikona = Oteleport2Icon.cloneNode(true);
+                  break;
+                case 'TPG':
+                  ikona = BteleportIcon.cloneNode(true);
+                  break;
+                case 'TPG2':
+                  ikona = Bteleport2Icon.cloneNode(true);
+                  break;
+                case 'TPO':
+                  ikona = GteleportIcon.cloneNode(true);
+                  break;
+                case 'TPO2':
+                  ikona = Gteleport2Icon.cloneNode(true);
+                  break;
+                case 'R':
+                  ikona = raketkaIcon.cloneNode(true);
+                  raketkaRow = r;
+                  raketkaCol = c;
+                  break;
+              }
+              if (ikona) {
+                cilovaBunka.appendChild(ikona);
+              }
+            }
+          });
+        });
+  
+        // Nastavení barev pozadí na základě druhé části matice
+        matice[1].forEach((radek, r) => {
+          radek.forEach((prvek, c) => {
+            if (prvek) {
+              let cilovaBunka = herniTabulka.rows[r].cells[c];
+              switch (prvek) {
+                case 'B1':
+                  cilovaBunka.style.backgroundColor = '#FFF7D1';  // Žlutá
+                  break;
+                case 'B2':
+                  cilovaBunka.style.backgroundColor = '#A5DD9B';  // Zelená
+                  break;
+              }
+            }
+          });
+        });
+  
+        // Nastavení náhodného pozadí
+        for (let r = 0; r < radky; r++) {
+          for (let c = 0; c < sloupce; c++) {
+            let bunka = herniTabulka.rows[r].cells[c];
+            //if (!bunka.hasChildNodes()) {
+            const starIcon = document.createElement('img');
+            const randomNum = Math.floor(Math.random() * 10) + 1;
+            starIcon.src = `obrazky/pozadi${randomNum}.png`;
+            starIcon.alt = 'pozadí';
+            starIcon.style.opacity = 0.15;
+            bunka.appendChild(starIcon);
+            //}
+          }
+        }
+  
+        // Barvení prvního řádku
+        let prvniRadek = herniTabulka.rows[0];
+        for (let c = 0; c < sloupce; c++) {
+          prvniRadek.cells[c].style.backgroundColor = '#FFC0D9';  // Růžová
+        }
+        for (let r = 0; r < herniTabulka.rows.length; r++) {
+          let radek = herniTabulka.rows[r];
+          for (let c = 0; c < radek.cells.length; c++) {
+            let bunka = radek.cells[c];
+  
+            // Nastavení modré jen pokud nemá nastavené pozadí
+            if (!bunka.style.backgroundColor) {
+              bunka.style.backgroundColor = 'rgb(191, 236, 255)';  // Modrá
+            }
+          }
+        }
+  
+        // Pamatujeme si startovní pozici raketky
+        raketkaRowPamet = raketkaRow;
+        raketkaColPamet = raketkaCol;
+  
+  
+        matice[3][0].forEach(blockType => {//.
+          toolbox.contents.push({
+            "kind": "block",
+            "type": blockType
+          });
+        });
+         
+      }
+      setupMap();
+    </script>
+
+    <script>
+
+    let workspace = Blockly.inject('blocklyDiv', {
+    toolbox: toolbox
+    });
+    console.log(toolbox);
+    </script>
+
+
+
+    <script> // Herní tabulka
+
+
+
+    // Přidání bloku "Start" do workspace 
+    function StartExists() {
+      const startBlocks = workspace.getAllBlocks().filter(block => block.type === 'start_program');
+      if (startBlocks.length === 0) {
+        const startBlock = workspace.newBlock('start_program');
+        startBlock.initSvg();
+        startBlock.render();
+        startBlock.setMovable(false);
+        startBlock.setDeletable(false);
+        startBlock.moveBy(20, 20);
+      }
+    }
+    // Zajistit, že blok "start" existuje
+    StartExists();
+    // Přidání bloku "start" při změně workspace
+    workspace.addChangeListener(() => {
+      StartExists();
+    });
+
+
+
+
+  </script>
+
+
+
+  
+
+
+
+
+  <script> // Spuštění programu
+    function delay(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+    async function Highlightb(x) { //.
+      if (x) {
+        const startblockId = x.id;
+        // Získáme ID bloku
+        const workspaces = Blockly.Workspace.getAll();
+
+        let blockFound = false;
+
+        for (const workspace of workspaces) {
+          if (workspace instanceof Blockly.WorkspaceSvg) {
+            const block = workspace.getBlockById(startblockId);  // Najdeme blok podle ID
+            if (block) {
+              block.select();  // Zvýrazníme blok vizuálně
+              blockFound = true;
+
+
+              break;
+            }
+          }
+        }
+
+        if (!blockFound) {
+          console.log(`Blok s ID ${startblockId} nebyl nalezen ve vizuálním workspace.`);
+        }
+      } else {
+        console.warn("Blok 'start_program' nebyl nalezen v tempWorkspace.");
+      }
+
+    }
+    async function Unhighlightb(x) { //.
+      if (x) {
+        const startblockId = x.id;  // Získáme ID bloku
+        const workspaces = Blockly.Workspace.getAll();
+
+        let blockFound = false;
+
+        for (const workspace of workspaces) {
+          if (workspace instanceof Blockly.WorkspaceSvg) {
+            const block = workspace.getBlockById(startblockId);  // Najdeme blok podle ID
+            if (block) {
+              block.unselect();  // Zruší zvýraznění bloku
+              blockFound = true;
+              break;
+            }
+          }
+        }
+
+        if (!blockFound) {
+          console.log(`Blok s ID ${startblockId} nebyl nalezen ve vizuálním workspace.`);
+        }
+      } else {
+        console.warn("Blok 'start_program' nebyl nalezen v tempWorkspace.");
+      }
+    }
+    function unselectAllBlocks() { //.
+      const workspaces = Blockly.Workspace.getAll();
+
+      for (const workspace of workspaces) {
+        if (workspace instanceof Blockly.WorkspaceSvg) {
+          const allBlocks = workspace.getAllBlocks();  // Získáme všechny bloky ve workspace
+          allBlocks.forEach(block => {
+            block.unselect();  // Zrušíme zvýraznění pro každý blok
+          });
+
+        }
+      }
+    }
+
+
+
+    async function spustitProgram() {
+      document.getElementById('blocklyDiv').classList.add('workspace-disabled');//.
+
+
+
+      //vypis programu
+      const startBlock1 = workspace.getBlocksByType('start_program', false)[0];
+
+
+      if (startBlock1) {
+        // Získat všechny následníky start_block
+        const relevantXml = Blockly.Xml.blockToDomWithXY(startBlock1);
+        // Převést XML na text a zobrazit
+        let code = Blockly.Xml.domToPrettyText(relevantXml);
+        function wrapInXml(code) {
+          return `<xml xmlns="https://developers.google.com/blockly/xml">
+            ${code}
+          </xml>`;
+        }
+        code = wrapInXml(code);
+
+        document.getElementById("vypisprogramu").textContent = code;
+      } else {
+
+        console.log('Blok "start_program" nebyl nalezen.');
+      }
+
+      //spustit()
+
+      let Buttnoselect = document.getElementById("spustitProgramButton");
+      Buttnoselect.disabled = true;
+      // 1) Získat XML z <a id="vypisprogramu">
+      const xmlString = document.getElementById("vypisprogramu").textContent.trim();
+      if (!xmlString) {
+        console.log("Chybí XML v <a> nebo je prázdné.");
+        return;
+      }
+
+      // 2) Vytvořit dočasný workspace a načíst XML
+      const tempWorkspace = new Blockly.Workspace();
+      const dom = Blockly.utils.xml.textToDom(xmlString); // 1) Převést text na DOM
+      Blockly.Xml.domToWorkspace(dom, tempWorkspace);     // 2) Nalít DOM do workspace
+
+
+      // 3) Najít start_program
+      const startBlock = tempWorkspace.getBlocksByType('start_program')[0];
+      unselectAllBlocks(); //.
+      Highlightb(startBlock);
+      await delay(cas);
+      Unhighlightb(startBlock);//.
+
+
+
+
+
+
+
+      if (!startBlock) {
+        console.log("V XML není start_program.");
+        return;
+      }
+
+      // 4) Poskládáme bloky do pole, které budeme zpracovávat
+      const blocksChain = [];
+      let current = startBlock;
+      while (current) {
+        blocksChain.push(current);
+        current = current.getNextBlock();
+      }
+
+      // 5) Sekvenční zpracování bloků s 1s prodlevou
+      let i = 0;
+      async function zpracujDalsiBlok() {
+        if (i >= blocksChain.length) {
+          return;
+        }
+        Highlightb(blocksChain[i]); //.
+        await AktualniBlok(blocksChain[i]);
+
+
+        Unhighlightb(blocksChain[i]);
+        i++;
+        await zpracujDalsiBlok();
+      }
+
+      await zpracujDalsiBlok();
+
+      unselectAllBlocks();
+      await console.log("Program skončil.");
+      if (konecHry == true) {
+        await zkontrolujPozadiRaketky();
+
+      }
+      konecHry = true;
+      AktualniBlokRunning = true;
+      document.getElementById('blocklyDiv').classList.remove('workspace-disabled');//.
+
+    }
+    async function AktualniBlok(block) {
+      if (!AktualniBlokRunning) return;
+
+      switch (block.type) {
+        case 'start_program':
+          console.log("Začínám program...");
+          break;
+        case 'let':
+          const direction = block.getFieldValue('DIRECTION');
+
+          switch (direction) {
+            case 'FORWARD':
+
+              console.log("Letím vpřed!");
+              raketkaColPamet = raketkaCol;
+              raketkaRowPamet = raketkaRow;
+              raketkaRow--;
+
+              vykresliRaketku();
+              Highlightb(block);//.
+              await delay(cas);//.
+              Unhighlightb(block);//.
+              break;
+
+            case 'LEFT':
+
+              console.log("Letím doleva!");
+              raketkaColPamet = raketkaCol;
+              raketkaRowPamet = raketkaRow;
+              raketkaCol--;
+              raketkaRow--;
+
+              vykresliRaketku();
+              Highlightb(block);//.
+              await delay(cas);//.
+              Unhighlightb(block);//.
+              break;
+
+            case 'RIGHT':
+
+              console.log("Letím doprava!");
+              raketkaColPamet = raketkaCol;
+              raketkaRowPamet = raketkaRow;
+              raketkaCol++;
+              raketkaRow--;
+
+              vykresliRaketku();
+              Highlightb(block);//.
+              await delay(cas);//.
+              Unhighlightb(block);//.
+
+              break;
+
+            default:
+              console.log("Neznámý směr letu: " + direction);
+          }
+          break;
+
+
+
+        case 'opakuj':
+          let pocet = block.getFieldValue('POCET');
+
+
+          for (let i = 0; i < pocet; i++) {
+            Highlightb(block);//.
+            await delay(cas);//.
+            Unhighlightb(block);//.
+            let currentBlock = block.getInputTargetBlock('AKCE'); // Získáme první blok pro každý průchod
+
+            while (currentBlock) {
+              if (!AktualniBlokRunning) return;
+              await AktualniBlok(currentBlock);  // Čekáme na dokončení bloku
+              currentBlock = currentBlock.getNextBlock();
+
+            }
+          }
+
+          break;
+
+        case 'dokud':
+
+
+          async function vykonejDokud() {
+
+            let podminka = block.getInputTargetBlock('PODMINKA');
+            let currentBlock = block.getInputTargetBlock('AKCE');
+
+            // Opakuj dokud je podmínka pravdivá
+            while (podminka && whilepodminka(podminka)) {
+              Highlightb(block);//.
+              await delay(cas);//.
+              Unhighlightb(block);//.
+              while (currentBlock) {
+                if (!AktualniBlokRunning) return;
+                await AktualniBlok(currentBlock);
+                currentBlock = currentBlock.getNextBlock();
+              }
+              // Znovu ověříme podmínku a bloky k vykonání
+              currentBlock = block.getInputTargetBlock('AKCE');
+              podminka = block.getInputTargetBlock('PODMINKA');
+            }
+          }
+          await vykonejDokud();
+          break;
+
+          function whilepodminka(podminka) {
+            if (podminka.type === 'porovnani') {
+              const operace = podminka.getFieldValue('OPERACE');
+              const hodnota = parseInt(podminka.getFieldValue('HODNOTA'));
+              switch (operace) {
+                case 'EQ': return raketkaCol === hodnota;
+                case 'NEQ': return raketkaCol !== hodnota;
+                case 'GT': return raketkaCol > hodnota;
+                case 'LT': return raketkaCol < hodnota;
+                case 'GTE': return raketkaCol >= hodnota;
+                case 'LTE': return raketkaCol <= hodnota;
+              }
+            } else if (podminka.type === 'porovnani_text') {
+              const operace = podminka.getFieldValue('OPERACE');
+              const hodnota = podminka.getFieldValue('HODNOTA');
+              const currentColor = herniTabulka.rows[raketkaRow].cells[raketkaCol].style.backgroundColor;
+              console.log(currentColor);
+              let barvaMap = {
+                'Ruzova': 'rgb(255, 192, 217)',
+                'Zluta': 'rgb(255, 247, 209)',
+                'Zelena': 'rgb(165, 221, 155)',
+                'Modra': 'rgb(191, 236, 255)'
+              };
+
+              switch (operace) {
+                case 'EQ': return currentColor === barvaMap[hodnota];
+                case 'NEQ': return currentColor !== barvaMap[hodnota];
+              }
+            }
+            return false;
+          }
+        case 'pokud':
+          async function vykonejPokud() {
+            Highlightb(block);//.
+            await delay(cas);//.
+            Unhighlightb(block);//.
+            let podminka = block.getInputTargetBlock('PODMINKA');
+            let currentBlock = block.getInputTargetBlock('AKCE');
+
+            // Pokud je podmínka splněna, vykonej akci
+            if (podminka && whilepodminka(podminka)) {
+              while (currentBlock) {
+                if (!AktualniBlokRunning) return;
+                await AktualniBlok(currentBlock);
+                currentBlock = currentBlock.getNextBlock();
+
+              }
+            }
+          }
+          await vykonejPokud();
+
+          break;
+
+        case 'pokud_jinak':
+          async function vykonejPokudJinak() {
+            Highlightb(block);//.
+            await delay(cas);//.
+            Unhighlightb(block);//.
+            let podminka = block.getInputTargetBlock('PODMINKA');
+            let currentBlock = podminka && whilepodminka(podminka)
+              ? block.getInputTargetBlock('AKCE')
+              : block.getInputTargetBlock('AKCE_JINAK');
+
+            // Vykonej akci na základě podmínky
+            while (currentBlock) {
+              if (!AktualniBlokRunning) return;
+              await AktualniBlok(currentBlock);
+              currentBlock = currentBlock.getNextBlock();
+            }
+          }
+          await vykonejPokudJinak();
+          break;
+
+        case 'vystrel':
+          Highlightb(block);//.
+
+          let forwardBlock = { type: 'let', getFieldValue: () => 'FORWARD' };
+          let DeleteCell;
+          let DeleteImg;
+          let DeleteRocket;
+          let DeleteRocketImg;
+          async function vystrelRakety() {
+            console.log("Střílím raketu!");
+            let currentRow = raketkaRow - 1;
+            let rocketFired = false;
+            if (!AktualniBlokRunning) return;
+            if (pocetMaxNaboju != 0) {
+              while (currentRow >= 0) {
+
+                let targetCell = herniTabulka.rows[currentRow].cells[raketkaCol];
+                let images = targetCell.getElementsByTagName('img');
+                console.log(images.length);
+                if (images.length > 1) {
+
+                  rocketFired = true;
+                  for (let img of images) {
+                    if (img.alt === 'asteroid') {
+                      img.remove();
+                      rocketFired = true;
+                      console.log("Asteroid zničen!");
+
+                    }
+                  }
+                  DeleteCell = herniTabulka.rows[currentRow + 1].cells[raketkaCol];
+                  DeleteImg = DeleteCell.getElementsByTagName('img');
+                  for (let img of DeleteImg) {
+                    if (img.alt === 'raketa') {
+                      img.remove();
+                    }
+                  }
+                  if (rocketFired) break;
+                }
+
+                else {
+                  let rocketImg = document.createElement('img');
+                  rocketImg.src = 'obrazky/rocket.png';
+                  rocketImg.alt = 'raketa';
+                  targetCell.appendChild(rocketImg);
+
+                  DeleteCell = herniTabulka.rows[currentRow + 1].cells[raketkaCol];
+                  DeleteImg = DeleteCell.getElementsByTagName('img');
+                  for (let img of DeleteImg) {
+                    if (img.alt === 'raketa') {
+                      img.remove();
+                    }
+                  }
+                  console.log("Výstřel do řádku " + currentRow);
+
+                }
+                await delay(cas);
+                currentRow--;
+
+
+
+                DeleteRocket = herniTabulka.rows[0].cells[raketkaCol];
+                DeleteRocketImg = DeleteRocket.getElementsByTagName('img');
+                for (let img of DeleteRocketImg) {
+                  if (img.alt === 'raketa') {
+                    img.remove();
+                  }
+                }
+
+              }
+
+            }
+            if (pocetMaxNaboju != 0) {
+              pocetMaxNaboju--;
+              document.getElementById("pocetstrel1").textContent = pocetMaxNaboju;
+            }
+
+            await AktualniBlok(forwardBlock);
+          }
+
+
+          await vystrelRakety();
+          Unhighlightb(block);//.
+          break;
+
+
+
+
+      }
+
+    }
+    function vykresliRaketku() {
+
+      // Kontrola, zda raketka nevyjela z pole
+      if (raketkaRow < 0 || raketkaRow >= herniTabulka.rows.length || raketkaCol < 0 ||
+        raketkaCol >= herniTabulka.rows[0].cells.length) {
+        AktualniBlokRunning = false;
+        konecHry = false;
+        setupMap();
+        document.getElementById("spustitProgramButton").disabled = false;
+        alert("Raketka vyjela z pole!");
+        //window.stop();  // Zastavíme vykonávání programu
+
+
+        return;  // Ukončí funkci, aby se zabránilo chybě
+      }
+      // Pokud raketka narazí na meteor
+      const bunka = herniTabulka.rows[raketkaRow].cells[raketkaCol];
+      const obsahBunky = bunka.querySelectorAll('img');
+      for (let obrazek of obsahBunky) {
+        if (obrazek.src.includes('obrazky/meteorite.png') || obrazek.src.includes('obrazky/asteroid.png')) {
+          alert("Raketka narazila na meteorit!");
+          AktualniBlokRunning = false;
+          konecHry = false;
+          setupMap();
+          document.getElementById("spustitProgramButton").disabled = false;
+          return;
+        }
+      }
+      // Pokud raketka narazí na teleport
+      for (let obrazek of obsahBunky) {
+        if (obrazek.src.includes('obrazky/TP_Blue.png')) {
+          teleportujNa('TP_Blue_2');
+          break;
+        } else if (obrazek.src.includes('obrazky/TP_Blue_2.png')) {
+          teleportujNa('TP_Blue');
+          break;
+        } else if (obrazek.src.includes('obrazky/TP_Green.png')) {
+          teleportujNa('TP_Green_2');
+          break;
+        } else if (obrazek.src.includes('obrazky/TP_Green_2.png')) {
+          teleportujNa('TP_Green');
+          break;
+        } else if (obrazek.src.includes('obrazky/TP_Orange.png')) {
+          teleportujNa('TP_Orange_2');
+          console.log("AhojTP");
+          break;
+        } else if (obrazek.src.includes('obrazky/TP_Orange_2.png')) {
+          teleportujNa('TP_Orange');
+          console.log("AhojTP");
+          break;
+        }
+      }
+      function teleportujNa(cilTeleportu) {
+
+        for (let i = 0; i < herniTabulka.rows.length; i++) {
+          for (let j = 0; j < herniTabulka.rows[i].cells.length; j++) {
+
+            const bunka = herniTabulka.rows[i].cells[j];
+            const obrazek = bunka.querySelector('img');
+            if (obrazek && obrazek.src.includes(`obrazky/${cilTeleportu}.png`)) {
+              raketkaRow = i;
+              raketkaCol = j;
+              return;
+            }
+          }
+        }
+      }
+
+
+
+
+
+      // Vymažeme ikonku raketky na staré pozici
+      const staraBunka = herniTabulka.rows[raketkaRowPamet].cells[raketkaColPamet];
+
+      const obrazky = staraBunka.querySelectorAll('img');
+
+      // Projdi všechny obrázky a odstraň ten s alt="raketka"
+      obrazky.forEach(function (obrazek) {
+        if (obrazek.alt === 'spaceship') {
+          obrazek.remove();
+        }
+      });
+
+
+
+      // Vytvoření nové raketky jako obrázek
+      const raketkaIcon = document.createElement('img');
+      raketkaIcon.src = 'obrazky/spaceship.png';
+      raketkaIcon.alt = 'spaceship';
+      raketkaIcon.style.zIndex = 1000;
+
+
+      // Vložíme raketku na novou pozici
+      const novaBunka = herniTabulka.rows[raketkaRow].cells[raketkaCol];
+      const Diamant = novaBunka.getElementsByTagName('img');
+
+      // Projdeme všechny obrázky a smažeme ten, který má alt="diamant"
+      for (let i = 0; i < Diamant.length; i++) {
+        if (Diamant[i].alt === "diamond") {
+          Diamant[i].remove();
+          break;  // Pokud potřebujete smazat jen jeden, ukončete smyčku
+        }
+      }
+
+
+
+      //novaBunka.textContent = '';  // Vymažeme stávající obsah buňky
+      novaBunka.appendChild(raketkaIcon);  // Přidáme obrázek
+
+
+    }
+  </script>
+
+  <script>
+
+    function zkontrolujPozadiRaketky() {
+      const bunka = herniTabulka.rows[raketkaRow].cells[raketkaCol];
+      const barvaPozadi = window.getComputedStyle(bunka).backgroundColor;
+
+      console.log("Barva pozadí buňky: ", barvaPozadi); // Pro debugging
+
+      // Mapování růžové barvy (v RGB)
+      const ruzovaBarva = 'rgb(255, 192, 217)';
+
+      if (barvaPozadi === ruzovaBarva) {
+        // Prohledání celé herní tabulky po diamantech
+        let jsouJeštěDiamanty = false;
+        for (let i = 0; i < herniTabulka.rows.length; i++) {
+          for (let j = 0; j < herniTabulka.rows[i].cells.length; j++) {
+            const bunka = herniTabulka.rows[i].cells[j];
+            const diamantyVBunce = bunka.getElementsByTagName('img');
+            for (let k = 0; k < diamantyVBunce.length; k++) {
+              if (diamantyVBunce[k].alt === "diamond") {
+                jsouJeštěDiamanty = true;
+                break;
+              }
+            }
+            if (jsouJeštěDiamanty) {
+              break; // Pokud jsme našli diamant, nemusíme prohledávat dál
+            }
+          }
+          if (jsouJeštěDiamanty) {
+            break; // Pokud jsme našli diamant, nemusíme prohledávat další řádky
+          }
+        }
+
+        if (jsouJeštěDiamanty) {
+          alert("Nesebral jsi všechny diamanty!");
+          setupMap();
+          document.getElementById("spustitProgramButton").disabled = false;
+        } else {
+
+          alert("Vítězství! Napiš mi, jak se ti to líbilo <3");
+
+
+        }
+      }
+      else {
+
+        alert("Raketka není v růžové buňce.");
+        setupMap();
+        document.getElementById("spustitProgramButton").disabled = false;
+      }
+    }
+  </script>
+
+  <script> // Omezení počtu  bloků a nábojů
+    const allowedBlocks = ['pozice', 'barva'];  // Text, který je v appendField
+    document.getElementById('pocetpouzitychbloku2').textContent = pocetMaxBloku; // Zobrazíme maximální počet
+    document.getElementById('pocetstrel2').textContent = pocetMaxNaboju; // Zobrazíme maximální počet
+    document.getElementById('pocetstrel1').textContent = pocetMaxNaboju;
+    let disableButton = false;
+    let count = -1;
+    workspace.addChangeListener(function (event) {
+
+      disableButton = false;
+      var startBlock = workspace.getBlocksByType('start_program', false)[0];
+      document.getElementById('pocetpouzitychbloku1').textContent = 0;
+
+      if (startBlock) {
+        count = -1;
+        // Rekurzivní funkce na procházení bloků s filtrem
+        function countBlocks(block) {
+          if (block) {
+            // Zkontroluj, jestli blok obsahuje text z allowedBlocks
+            let blockText = block.getFieldValue('NAME') || '';  // Nebo jiný field, kde je text
+            let blockLabel = block.inputList
+              .map(input => input.fieldRow
+                .map(field => field.getText())
+                .join(''))
+              .join('');
+
+            // Pokud blok NEOBSAHUJE povolený text, započítáme ho
+            if (!allowedBlocks.some(text => blockText.includes(text) || blockLabel.includes(text))) {
+              count++;
+            }
+
+
+            if (['dokud', 'pokud', 'pokud_jinak'].includes(block.type)) {
+              let podminkaBlock = block.getInputTargetBlock('PODMINKA');
+
+              let containsAllowedText = podminkaBlock && podminkaBlock.inputList.some(input =>
+                input.fieldRow.some(field =>
+                  allowedBlocks.some(text => (field.getText() || '').includes(text))
+                )
+              );
+
+              if (!podminkaBlock || !containsAllowedText) {
+                disableButton = true;
+              }
+            }//.
+
+
+
+
+            // Projdeme všechny připojené bloky (vnořené i následující)
+            let children = block.getChildren();
+            for (let i = 0; i < children.length; i++) {
+              countBlocks(children[i]);
+            }
+          }
+        }
+
+        // Spustíme počítání od bloku "start_program"
+        countBlocks(startBlock);
+
+
+
+
+
+        // Aktualizujeme počet bloků v DOM
+        document.getElementById('pocetpouzitychbloku1').textContent = count;
+
+        // Omezíme možnost přidávání bloků, pokud je dosaženo limitu
+        if (count >= pocetMaxBloku) {
+          disableBlocksInToolbox();
+        } else {
+          enableBlocksInToolbox();
+        }
+
+        // Omezíme spuštění programu
+        if (count > pocetMaxBloku) {
+          disableButton = true;
+        }//.
+
+        document.getElementById('spustitProgramButton').disabled = disableButton;
+
+      }
+
+
+
+    });
+
+
+
+    // Povolené bloky na základě jejich textu
+
+    // Deaktivace všech bloků kromě těch, co obsahují 'pozice' nebo 'barva'
+    function disableBlocksInToolbox() {
+      let toolboxBlocks = document.querySelectorAll('.blocklyFlyout .blocklyDraggable');
+
+      toolboxBlocks.forEach(block => {
+        let blockText = block.querySelector('.blocklyText')?.textContent.trim();
+
+        // Pokud blok nemá text nebo není povolený, zablokuj ho
+        if (!allowedBlocks.some(allowed => blockText.includes(allowed))) {
+          block.style.opacity = '0.4';         // Vizualní ztmavení
+          block.style.cursor = 'not-allowed';
+        }
+      });
+    }
+
+    // Aktivace všech bloků v toolboxu
+    function enableBlocksInToolbox() {
+      let toolboxBlocks = document.querySelectorAll('.blocklyFlyout .blocklyDraggable');
+
+      toolboxBlocks.forEach(block => {
+        block.style.opacity = '1';           // Plná viditelnost
+        block.style.cursor = 'pointer';      // Změna kurzoru
+      });
+    }
+
+  </script>
+  <script>//rychlost programu "range"
+    var slider = document.getElementById("myRange");
+
+    slider.oninput = function () {
+      cas = this.value;
+    }
+
+
+  </script>
+
+
+
+
+</body>
+
+<footer>
+  <div style="text-align: center; padding: 20px; background-color: rgb(77, 71, 71); color: white;">
+    <p>&copy; raketomise 2024</p>
+    <nav>
+      <a href="https://kraken.pedf.cuni.cz/~vitekdavid/Projekt6final/" style="color: white; margin: 0 15px;">Kontakt</a>
+    </nav>
+  </div>
+</footer>
+
+
+</html>
